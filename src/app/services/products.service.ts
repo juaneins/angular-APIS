@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { retry } from 'rxjs/operators';
+import {
+  HttpClient,
+  HttpParams,
+  HttpErrorResponse,
+  HttpStatusCode,
+} from '@angular/common/http';
+import { retry, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 import { Product } from './../models/product.model';
 import { CreateProductDTO, UpdateProductDTO } from '../models/productdto.model';
@@ -24,7 +30,20 @@ export class ProductsService {
   }
 
   getProduct(id: string) {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+    return this.http.get<Product>(`${this.apiUrl}/${id}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === HttpStatusCode.InternalServerError) {
+          return throwError('internal server error');
+        }
+        if (error.status === HttpStatusCode.NotFound) {
+          return throwError('the product doesnt exist');
+        }
+        if (error.status === HttpStatusCode.Unauthorized) {
+          return throwError('you are not Unauthorized');
+        }
+        return throwError('Ups! unknown error!');
+      })
+    );
   }
 
   getProductsByPage(limit: number, offset: number) {
