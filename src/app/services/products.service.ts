@@ -6,7 +6,7 @@ import {
   HttpStatusCode,
 } from '@angular/common/http';
 import { retry, catchError, map } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { throwError, zip } from 'rxjs';
 
 import { Product } from './../models/product.model';
 import { CreateProductDTO, UpdateProductDTO } from '../models/productdto.model';
@@ -34,6 +34,10 @@ export class ProductsService {
         })
       )
     );
+  }
+
+  fetchReadAndUpdate(id: string, dto: UpdateProductDTO) {
+    return zip(this.getProduct(id), this.update(id, dto));
   }
 
   getProduct(id: string) {

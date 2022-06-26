@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { switchMap } from 'rxjs/operators';
+import { zip } from 'rxjs';
 
 import { Product } from '../../models/product.model';
 import {
@@ -74,6 +76,49 @@ export class ProductsComponent implements OnInit {
         this.statusDetail = 'error';
       }
     );
+  }
+  /*switchmap se usa para ejecutar observables que dependen de un resultado anterior; en el ejemplo primero se necesita el id para la actualización
+  Con switchMap evitamos el callback hell, si tenemos varias llamadas
+se podrían ejecutar los observables usando otro switchmap:
+ switchMap((product) =>this.productsService.update(product.id, { title: 'new title' }),
+ switchMap((product) =>this.productsService.update(product.id, { title: 'new title' }),
+ switchMap((product) =>this.productsService.update(product.id, { title: 'new title' }),
+        )
+
+
+        */
+  readAndUpdate(id: string) {
+    this.productsService
+      .getProduct(id)
+      .pipe(
+        switchMap((product) =>
+          this.productsService.update(product.id, { title: 'new title' })
+        )
+      )
+      .subscribe((data) => {
+        console.log('data: ', data);
+      });
+
+    // .subscribe((data) => {
+    //   const productId = data.id;
+    //   this.productsService
+    //     .update(productId, {
+    //       title: 'new title',
+    //     })
+    // .subscribe((rtaUpdate) => {
+    //   console.log(rtaUpdate);
+    // });
+    /*
+    con zip podemos ejecutar observables paralelos que no son dependientes al mismo tiempo
+    */
+    zip(
+      // this.productsService.getProduct(id),
+      // this.productsService.update(id, { title: 'new title' })
+      this.productsService.fetchReadAndUpdate(id, { title: 'new title' })
+    ).subscribe((response) => {
+      const read = response[0];
+      const update = response[1];
+    });
   }
 
   createNewProduct() {
