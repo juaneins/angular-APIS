@@ -1,19 +1,30 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, AfterViewInit, OnDestroy, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  AfterViewInit,
+  OnDestroy,
+  SimpleChanges,
+} from '@angular/core';
 
 @Component({
   selector: 'app-img',
   templateUrl: './img.component.html',
-  styleUrls: ['./img.component.scss']
+  styleUrls: ['./img.component.scss'],
 })
-export class ImgComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
-
+export class ImgComponent
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy
+{
   img: string = '';
 
   // eslint-disable-next-line @angular-eslint/no-input-rename
   @Input('img')
   set changeImg(newImg: string) {
     this.img = newImg;
-    console.log('change just img  =>' ,this.img);
+    console.log('change just img  =>', this.img);
     // code
   }
   @Input() alt: string = '';
@@ -68,5 +79,4 @@ export class ImgComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy
     console.log('log hijo');
     this.loaded.emit(this.img);
   }
-
 }

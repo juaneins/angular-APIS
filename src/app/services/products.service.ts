@@ -9,6 +9,7 @@ import { retry, catchError, map } from 'rxjs/operators';
 import { throwError, zip } from 'rxjs';
 
 import { Product } from './../models/product.model';
+import { checkTime } from '../interceptors/time.interceptor';
 import { CreateProductDTO, UpdateProductDTO } from '../models/productdto.model';
 import { environment } from './../../environments/environment';
 
@@ -26,14 +27,16 @@ export class ProductsService {
       params = params.set('limit', limit);
       params = params.set('offset', offset);
     }
-    return this.http.get<Product[]>(this.apiUrl, { params }).pipe(
-      retry(3),
-      map((products) =>
-        products.map((item) => {
-          return { ...item, taxes: 0.12 * item.price };
-        })
-      )
-    );
+    return this.http
+      .get<Product[]>(this.apiUrl, { params, context: checkTime() })
+      .pipe(
+        retry(3),
+        map((products) =>
+          products.map((item) => {
+            return { ...item, taxes: 0.12 * item.price };
+          })
+        )
+      );
   }
 
   fetchReadAndUpdate(id: string, dto: UpdateProductDTO) {
